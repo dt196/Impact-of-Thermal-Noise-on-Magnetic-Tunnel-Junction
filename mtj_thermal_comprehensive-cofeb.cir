@@ -1,0 +1,200 @@
+* MTJ Temperature Study - Co/Pt Material - COMPREHENSIVE SWEEP
+* THERMAL NOISE STUDY FOR IEEE POSTER
+* 840 SIMULATIONS - HIGH STATISTICAL RIGOR
+
+.param pi = 3.14159265359
+
+* Co/Pt Material Parameters
+.param Ms = 4.5e5
+.param alpha = 0.02
+.param gamma = 2.21e5
+.param V_free = 2.5e-24
+.param P = 0.65
+.param hbar = 1.055e-34
+.param q = 1.602e-19
+.param kB = 1.381e-23
+.param mu0 = 1.257e-6
+
+* Anisotropy
+.param Ba = 0.02
+.param Hk = {Ba/mu0}
+
+* Demagnetization
+.param Nx = 0.02
+.param Ny = 0.02
+.param Nz = 0.96
+
+* Simulation Parameters
+.param T_kelvin = 300
+.param I_pulse = 7.0m
+.param MC_seed = 1
+.param t_pulse = 60n
+
+* STT prefactor
+.param eta = {hbar*P/(2*q*mu0*Ms*V_free)}
+
+* Initial conditions
+.param theta0 = 0.1
+.param phi0 = 0
+
+* THERMAL NOISE (PROPERLY SCALED)
+.param H_th = {sqrt(2*alpha*kB*T_kelvin/(gamma*mu0*Ms*V_free*1e-9))}
+
+* ====================================================================
+* PARAMETER SWEEPS - 840 SIMULATIONS
+* ====================================================================
+
+* Temperature: 7 points (250K to 400K in 25K steps)
+.step param T_kelvin list 250 275 300 325 350 375 400
+
+* Current: 6 points (5.5 to 8.0mA in 0.5mA steps)
+.step param I_pulse list 5.5m 6.0m 6.5m 7.0m 7.5m 8.0m
+
+* Monte Carlo: 20 seeds for statistical analysis
+.step param MC_seed 1 20 1
+
+* Total: 7 × 6 × 20 = 840 simulations
+
+* ====================================================================
+* CIRCUIT
+* ====================================================================
+
+I_pulse in 0 PULSE 0 {I_pulse} 10n 100p 100p {t_pulse} 1000n
+
+* THERMAL NOISE SOURCES
+Bth_x th_x 0 V=H_th*white(time*1e12+MC_seed)
+Bth_y th_y 0 V=H_th*white(time*1e12+MC_seed+1000)
+Bth_z th_z 0 V=H_th*white(time*1e12+MC_seed+2000)
+
+* Magnetization components
+Bmx mx 0 V=sin(V(theta))*cos(V(phi))
+Bmy my 0 V=sin(V(theta))*sin(V(phi))
+Bmz mz 0 V=cos(V(theta))
+
+* Stabilization resistors
+Rmx mx 0 1e12
+Rmy my 0 1e12
+Rmz mz 0 1e12
+
+* Anisotropy field
+Bh_anis_x h_anix 0 V=0
+Bh_anis_y h_aniy 0 V=0
+Bh_anis_z h_aniz 0 V=Hk*V(mz)
+
+* Demagnetization field
+Bh_demag_x h_demagx 0 V=-Nx*Ms*V(mx)
+Bh_demag_y h_demagy 0 V=-Ny*Ms*V(my)
+Bh_demag_z h_demagz 0 V=-Nz*Ms*V(mz)
+
+* Effective field WITH thermal noise
+Bh_eff_x h_effx 0 V=V(h_anix)+V(h_demagx)+V(th_x)
+Bh_eff_y h_effy 0 V=V(h_aniy)+V(h_demagy)+V(th_y)
+Bh_eff_z h_effz 0 V=V(h_aniz)+V(h_demagz)+V(th_z)
+
+* STT - m × p
+Bcross1_x c1x 0 V=V(my)
+Bcross1_y c1y 0 V=-V(mx)
+Bcross1_z c1z 0 V=0
+
+* STT - m × (m × p)
+Bcross2_x c2x 0 V=V(my)*V(c1z)-V(mz)*V(c1y)
+Bcross2_y c2y 0 V=V(mz)*V(c1x)-V(mx)*V(c1z)
+Bcross2_z c2z 0 V=V(mx)*V(c1y)-V(my)*V(c1x)
+
+* STT field
+Bh_stt_x h_sttx 0 V=-eta*I(I_pulse)*V(c2x)
+Bh_stt_y h_stty 0 V=-eta*I(I_pulse)*V(c2y)
+Bh_stt_z h_sttz 0 V=-eta*I(I_pulse)*V(c2z)
+
+* Total field
+Bh_total_x htotx 0 V=V(h_effx)+V(h_sttx)
+Bh_total_y htoty 0 V=V(h_effy)+V(h_stty)
+Bh_total_z htotz 0 V=V(h_effz)+V(h_sttz)
+
+* LLG - m × H
+Bmxh_x mxhx 0 V=V(my)*V(htotz)-V(mz)*V(htoty)
+Bmxh_y mxhy 0 V=V(mz)*V(htotx)-V(mx)*V(htotz)
+Bmxh_z mxhz 0 V=V(mx)*V(htoty)-V(my)*V(htotx)
+
+* LLG - m × (m × H)
+Bmxmxh_x mxmxhx 0 V=V(my)*V(mxhz)-V(mz)*V(mxhy)
+Bmxmxh_y mxmxhy 0 V=V(mz)*V(mxhx)-V(mx)*V(mxhz)
+Bmxmxh_z mxmxhz 0 V=V(mx)*V(mxhy)-V(my)*V(mxhx)
+
+* LLG - dθ/dt
+Bdtheta_dt dthetadt 0 V=(-gamma/(1+alpha*alpha))*(V(mxhx)*cos(V(phi))+V(mxhy)*sin(V(phi))+alpha*V(mxmxhx)*cos(V(phi))+alpha*V(mxmxhy)*sin(V(phi)))
+
+* LLG - dφ/dt (STABILIZED)
+Bdphi_dt dphidt 0 V=(-gamma/(1+alpha*alpha))*((V(mxhx)*sin(V(phi))-V(mxhy)*cos(V(phi)))/max(sin(V(theta)),0.1)+alpha*(V(mxmxhx)*sin(V(phi))-V(mxmxhy)*cos(V(phi)))/max(sin(V(theta)),0.1))
+
+* Integration
+Ctheta theta 0 1 IC={theta0}
+Gtheta 0 theta value={V(dthetadt)}
+
+Cphi phi 0 1 IC={phi0}
+Gphi 0 phi value={V(dphidt)}
+
+* ====================================================================
+* TRANSIENT ANALYSIS - OPTIMIZED TIME STEPPING
+* ====================================================================
+
+.tran 0 80n 0 5p uic
+
+.options plotwinsize=0
++ gmin=1e-12
++ abstol=1e-10
++ reltol=0.01
++ vntol=1e-6
++ method=gear
++ maxord=2
+
+* ====================================================================
+* MEASUREMENTS
+* ====================================================================
+
+.meas tran theta_initial FIND V(theta) AT=5n
+.meas tran theta_max MAX V(theta) FROM=10n TO=70n
+.meas tran theta_final FIND V(theta) AT=75n
+.meas tran t_switch WHEN V(theta)=2.5 RISE=1
+
+* ====================================================================
+* PARAMETER SUMMARY FOR IEEE POSTER
+* ====================================================================
+*
+* Device: Co/Pt perpendicular MTJ
+* Volume: V = 2.5×10⁻²⁴ m³ (37 nm diameter sphere)
+* Area: A = 1.25×10⁻¹⁵ m² (12.5 nm radius)
+*
+* Material Properties:
+*   Saturation Magnetization: Ms = 4.5×10⁵ A/m
+*   Spin Polarization: P = 0.65
+*   Anisotropy Field: Ba = 0.02 T
+*   Gilbert Damping: α = 0.02
+*
+* Sweep Parameters:
+*   Temperature: 250-400K (7 points, 25K steps)
+*   Current: 5.5-8.0 mA (6 points, 0.5 mA steps)
+*   Current Density: 2.47-3.59 × 10⁶ A/cm²
+*   Monte Carlo Seeds: 20 per condition
+*
+* Total Simulations: 7 × 6 × 20 = 840
+* Expected Runtime: ~35-45 minutes
+*
+* Thermal Noise Model:
+*   H_th = sqrt(2αkT/(γμ₀MsVΔt))
+*   White noise sources for Hx, Hy, Hz
+*   Fully stochastic LLG dynamics
+*
+* Output Metrics:
+*   - theta_initial: Initial angle (should be ~1.43 rad = 82°)
+*   - theta_max: Maximum angle during switching
+*   - theta_final: Final angle (negative = successful switch)
+*   - t_switch: Switching time (when theta crosses 2.5 rad)
+*
+* Success Criterion:
+*   theta_final < 0 → Switched to antiparallel state
+*   theta_final > 0 → Failed to switch (remained parallel)
+*
+* ====================================================================
+
+.end
