@@ -362,7 +362,7 @@ def create_figure_sw5_theta_distribution(df_raw):
     filename = f'{FIGURE_DIR}\\SW5_theta_distribution.{FIGURE_FORMAT}'
     plt.savefig(filename, dpi=FIGURE_DPI, bbox_inches='tight')
     plt.close()
-    print(f"  ✓ Saved: {filename}")
+    print(f"  Saved: {filename}")
 
 
 def create_figure_sw6_failure_vs_temp(df_stats):
