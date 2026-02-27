@@ -126,7 +126,6 @@ def calculate_oscillator_properties(df, material):
         theta = row['Theta_Initial']
         
         # FREQUENCY CALCULATION
-        # ---------------------------------------------------------------------------
         # Base frequency at 3 mA, 300K
         f_base = mat_params['base_freq']
         
@@ -146,7 +145,6 @@ def calculate_oscillator_properties(df, material):
         frequency_ghz = f_temp + theta_factor
   
         # LINEWIDTH CALCULATION (FWHM) - MATERIAL-SPECIFIC THERMAL
-        # ---------------------------------------------------------------------------
         # Base linewidth at 300K: 15-20 MHz (typical for STNOs)
         lw_base = 18.0  # MHz
         
