@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 
 print("\n" + "="*80)
-print("CREATING 6 UNIQUE PUBLICATION-QUALITY PLOTS")
+print("CREATING 6 PLOTS")
 print("="*80)
 
 # FILE PATHS - AUTOMATICALLY USES SCRIPT'S DIRECTORY
