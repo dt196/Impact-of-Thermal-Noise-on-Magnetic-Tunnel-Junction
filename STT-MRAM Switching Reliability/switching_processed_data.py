@@ -37,8 +37,6 @@ MATERIAL_MARKERS = {
 
 
 # FUNCTIONS
-# ----------------------------------------------------------------------------
-
 def load_data():
     """Load processed data files"""
     
