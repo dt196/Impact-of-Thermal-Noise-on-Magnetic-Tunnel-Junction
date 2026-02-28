@@ -503,7 +503,7 @@ def main():
     print(f"  2. SW2 - Failure comparison")
     print(f"  3. SW3 - Grouped bar chart")
     print(f"  4. SW4 - Heatmap")
-    print(f"  5. SW5 - threshold position")
+    print(f"  5. SW5 - Threshold position")
     print(f"  6. SW6 - Step plot with error bars")
     print(f"  7. Statistical analysis")
 
