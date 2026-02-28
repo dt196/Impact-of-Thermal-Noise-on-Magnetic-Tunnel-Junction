@@ -3,9 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-print("\n" + "="*80)
 print("CREATING 6 PLOTS")
-print("="*80)
 
 # FILE PATHS - AUTOMATICALLY USES SCRIPT'S DIRECTORY
 BASE_DIR = Path(__file__).parent  # Gets the directory where the script is
@@ -30,7 +28,7 @@ CURRENTS = [2.0, 2.5, 3.0, 3.5, 4.0, 4.5]
 
 
 # PLOT 1: FREQUENCY - Line Plot with Error Bars
-print("\n Creating Plot 1: Frequency (Line + Error Bars)...")
+print("\n Creating Plot 1: Frequency (Line + Error Bars)")
 
 fig, axes = plt.subplots(2, 3, figsize=(20, 12))
 axes = axes.flatten()
@@ -97,7 +95,7 @@ print("    Saved: v1_frequency_line_errorbar.png")
 
 # PLOT 2: LINEWIDTH - Gradient Area Chart
 
-print("\n Creating Plot 2: Linewidth (Gradient Area Chart)...")
+print("\n Creating Plot 2: Linewidth (Gradient Area Chart)")
 
 # BIGGER figure size to prevent overlap
 fig, axes = plt.subplots(2, 3, figsize=(26, 16))  # Increased further to prevent label overlap
@@ -191,7 +189,7 @@ print("    Saved: v2_linewidth_gradient_area.png")
 
 
 # PLOT 3: Q-FACTOR - Lollipop Chart
-print("\n Creating Plot 3: Q-Factor (Lollipop Chart)...")
+print("\n Creating Plot 3: Q-Factor (Lollipop Chart)")
 
 fig, axes = plt.subplots(2, 3, figsize=(26, 16))  # Increased to prevent label overlap
 axes = axes.flatten()
@@ -268,7 +266,7 @@ print("    Saved: v3_qfactor_lollipop.png")
 
 # PLOT 4: HEATMAP - 2D Grid (All 3 Metrics)
 
-print("\n Creating Plot 4: Heatmap (2D Grid for All Metrics)")
+print("\n Creating Plot 4: Heatmap")
 
 fig, axes = plt.subplots(3, 3, figsize=(22, 18))
 
@@ -328,11 +326,11 @@ plt.tight_layout()
 plt.savefig(OUTPUT_DIR / 'v4_heatmap_2d_grid.png',
            dpi=300, bbox_inches='tight', facecolor='white')
 plt.close()
-print("    Saved: v4_heatmap_2d_grid.png")
+print("    Saved: v4_heatmap.png")
 
 
 # PLOT 5: MATERIAL COMPARISON - Grouped Bars (at 3.0 mA)
-print("\n Creating Plot 5: Material Comparison (Grouped Bars)...")
+print("\n Creating Plot 5: Material Comparison (Grouped Bars)")
 
 # Taller figure to accommodate bottom legend
 fig, axes = plt.subplots(1, 3, figsize=(22, 9))  
@@ -394,7 +392,7 @@ print("    Saved: v5_material_comparison_bars.png")
 
 
 # PLOT 6: DEGRADATION - Percentage Area (from 250K baseline)
-print("\n Creating Plot 6: Thermal Degradation (Percentage Change)...")
+print("\n Creating Plot 6: Thermal Degradation (Percentage Change)")
 
 fig, axes = plt.subplots(1, 3, figsize=(22, 10))  # Increased from 9 to 10
 
@@ -573,11 +571,9 @@ plt.close()
 print("    Saved: v6_degradation_percentage_area.png")
 
 # SUMMARY
-print("\n" + "="*80)
 print("ALL 6 PLOTS CREATED SUCCESSFULLY")
 print("="*80)
 
-print("\n Generated files:")
 print("   1. v1_frequency_line_errorbar.png - Frequency stability")
 print("   2. v2_linewidth_gradient_area.png - Linewidth broadening")
 print("   3. v3_qfactor_lollipop.png - Q-factor degradation")
@@ -586,4 +582,3 @@ print("   5. v5_material_comparison_bars.png - Material comparison")
 print("   6. v6_degradation_percentage_area.png - Relative impact")
 
 print(f"\n All files saved to: {OUTPUT_DIR}")
-print("\n All plots use different visualization styles")
