@@ -1,7 +1,3 @@
-
-
-#!/usr/bin/env python3
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,9 +26,8 @@ MAX_TEMP = 400       # K - Maximum test temperature
 
 # LOAD DATA
 
-print("="*70)
 print("THERMAL STABILITY ANALYSIS - STARTING")
-print("="*70)
+
 
 try:
     df = pd.read_csv(INPUT_FILE)  # CSV file
@@ -42,15 +37,11 @@ try:
     print(f"   Currents: {sorted(df['Current_mA'].unique())}")
 except FileNotFoundError:
     print(f" ERROR: {INPUT_FILE} not found!")
-    print("   Make sure statistics_FIXED_THERMAL.csv is in the Result folder.")
     exit(1)
 
 # ANALYSIS 1: DEGRADATION RATES (Slope Analysis)
 
-print("\n" + "="*70)
 print("ANALYSIS 1: DEGRADATION RATE CALCULATION")
-print("="*70)
-print("WHY: Quantify how fast each material degrades with temperature")
 print("METHOD: Linear regression of metric vs temperature")
 print("UNIT: %/K (percent change per Kelvin)")
 
@@ -99,21 +90,16 @@ print(f"\n Degradation rates saved: {output_file}")
 
 # Print summary at 3.0 mA (standard comparison point)
 print("\n DEGRADATION RATES AT 3.0 mA:")
-print("-" * 70)
 summary_3ma = df_rates[df_rates['Current_mA'] == 3.0]
 print(summary_3ma.to_string(index=False))
 print("\nINTERPRETATION:")
 print("  Frequency: Negative = frequency decreases with temperature")
 print("  Linewidth: Positive = linewidth increases")
 print("  Q-Factor: Negative = quality decreases ")
-print("  Smaller absolute values = better thermal stability")
-
 
 # ANALYSIS 1B: ABSOLUTE DEGRADATION RATES (Direct Units)
 
-print("\n" + "="*70)
 print("ANALYSIS 1B: ABSOLUTE DEGRADATION RATE CALCULATION")
-print("="*70)
 print("WHY: Show actual performance loss in real units ")
 print("METHOD: Linear regression of metric vs temperature ")
 print("UNITS: GHz/K for frequency, MHz/K for linewidth, Q-points/K for Q-factor")
@@ -157,7 +143,6 @@ print(f"\n Absolute degradation rates saved: {output_file}")
 
 # Print summary at 3.0 mA
 print("\n ABSOLUTE DEGRADATION RATES AT 3.0 mA:")
-print("-" * 70)
 summary_3ma_abs_rates = df_abs_rates[df_abs_rates['Current_mA'] == 3.0]
 print(summary_3ma_abs_rates.to_string(index=False))
 print("\nINTERPRETATION:")
@@ -168,9 +153,7 @@ print("  Q-Factor (Q/K): Negative = quality decreases")
 
 # ANALYSIS 2: ABSOLUTE DEGRADATION (250K → 400K)
 
-print("\n" + "="*70)
 print("ANALYSIS 2: ABSOLUTE DEGRADATION (250K → 400K)")
-print("="*70)
 print("WHY: Show total performance loss from baseline to max temperature")
 print("METHOD: Calculate % change between 250K and 400K")
 
@@ -218,17 +201,13 @@ print(f"\n Absolute degradation saved: {output_file}")
 
 # Print summary at 3.0 mA
 print("\n ABSOLUTE DEGRADATION AT 3.0 mA (250K → 400K):")
-print("-" * 70)
 summary_3ma_abs = df_absolute[df_absolute['Current_mA'] == 3.0]
 print(summary_3ma_abs.to_string(index=False))
 
 
 # ANALYSIS 3: STATISTICAL SIGNIFICANCE (ANOVA)
 
-print("\n" + "="*70)
 print("ANALYSIS 3: STATISTICAL SIGNIFICANCE TESTING")
-print("="*70)
-print("WHY: Determine if material differences are statistically significant")
 print("METHOD: One-way ANOVA + post-hoc Tukey HSD test")
 print("THRESHOLD: p < 0.05 = statistically significant")
 
@@ -258,7 +237,6 @@ df_stats = pd.concat(results_stats, ignore_index=True)
 
 # Perform ANOVA for each metric
 print("\n ANOVA RESULTS:")
-print("-" * 70)
 
 # Frequency ANOVA
 groups_freq = [df_stats[df_stats['Material'] == mat]['Freq_Change_%'].values 
@@ -283,7 +261,6 @@ print("  SIGNIFICANT" if p_value_qf < 0.05 else "  Not significant")
 
 # Pairwise t-tests (post-hoc)
 print("\n PAIRWISE COMPARISONS (t-tests):")
-print("-" * 70)
 
 for metric, groups in [('Frequency', groups_freq), 
                        ('Linewidth', groups_lw), 
@@ -300,7 +277,6 @@ for metric, groups in [('Frequency', groups_freq),
 stats_output = OUTPUT_DIR / 'statistical_tests.txt'
 with open(stats_output, 'w') as f:
     f.write("STATISTICAL SIGNIFICANCE TESTING\n")
-    f.write("=" * 70 + "\n\n")
     f.write("ANOVA Results:\n")
     f.write(f"Frequency: F={f_stat_freq:.3f}, p={p_value_freq:.4f}\n")
     f.write(f"Linewidth: F={f_stat_lw:.3f}, p={p_value_lw:.4f}\n")
@@ -311,20 +287,14 @@ print(f"\n Statistical results saved: {stats_output}")
 
 # ANALYSIS 4: RANKING & BEST MATERIAL
 
-print("\n" + "="*70)
 print("ANALYSIS 4: COMPREHENSIVE MATERIAL RANKING")
-print("="*70)
-print("WHY: Identify best material for different performance priorities")
-print()
 
 # Get 3.0 mA data
 abs_rates_3ma_rank = df_abs_rates[df_abs_rates['Current_mA'] == 3.0].copy()
 
 # Individual metric rankings
-print("="*70)
 print("INDIVIDUAL METRIC RANKINGS (Smaller = Better)")
-print("="*70)
-print()
+
 
 # Linewidth ranking
 lw_sorted = abs_rates_3ma_rank.sort_values('Linewidth_Rate_MHz/K')
@@ -336,33 +306,29 @@ best_linewidth = lw_sorted.iloc[0]['Material']
 best_lw_value = lw_sorted.iloc[0]['Linewidth_Rate_MHz/K']
 worst_lw_value = lw_sorted.iloc[-1]['Linewidth_Rate_MHz/K']
 improvement = ((worst_lw_value - best_lw_value) / worst_lw_value) * 100
-print(f"  → WINNER: {best_linewidth} ({best_lw_value:.4f} MHz/K)")
+print(f"  → Best: {best_linewidth} ({best_lw_value:.4f} MHz/K)")
 print(f"  → ADVANTAGE: {improvement:.1f}% better than worst material")
-print()
+
 
 # Q-Factor ranking
 qf_sorted = abs_rates_3ma_rank.sort_values('Q_Factor_Rate_Q/K', key=abs)
 print(" Q-FACTOR STABILITY (Overall Quality):")
-print("-" * 70)
 for idx, (i, row) in enumerate(qf_sorted.iterrows(), 1):
     print(f"  Rank {idx}: {row['Material']:12} - {row['Q_Factor_Rate_Q/K']:.4f} Q/K (abs: {abs(row['Q_Factor_Rate_Q/K']):.4f})")
 best_qfactor = qf_sorted.iloc[0]['Material']
 best_qf_value = abs(qf_sorted.iloc[0]['Q_Factor_Rate_Q/K'])
 worst_qf_value = abs(qf_sorted.iloc[-1]['Q_Factor_Rate_Q/K'])
 improvement_qf = ((worst_qf_value - best_qf_value) / worst_qf_value) * 100
-print(f"  → WINNER: {best_qfactor} ({qf_sorted.iloc[0]['Q_Factor_Rate_Q/K']:.4f} Q/K)")
+print(f"  → Best: {best_qfactor} ({qf_sorted.iloc[0]['Q_Factor_Rate_Q/K']:.4f} Q/K)")
 print(f"  → ADVANTAGE: {improvement_qf:.1f}% better than worst material")
-print()
 
 # Frequency ranking
 freq_sorted = abs_rates_3ma_rank.sort_values('Frequency_Rate_GHz/K', key=abs)
 print(" FREQUENCY STABILITY:")
-print("-" * 70)
 for idx, (i, row) in enumerate(freq_sorted.iterrows(), 1):
     print(f"  Rank {idx}: {row['Material']:12} - {row['Frequency_Rate_GHz/K']:.6f} GHz/K (abs: {abs(row['Frequency_Rate_GHz/K']):.6f})")
 best_frequency = freq_sorted.iloc[0]['Material']
-print(f"  → WINNER: {best_frequency}")
-print()
+print(f"  → Best: {best_frequency}")
 
 # Overall composite ranking (equal weight to all metrics)
 abs_rates_3ma_rank['Freq_Rank'] = abs_rates_3ma_rank['Frequency_Rate_GHz/K'].abs().rank(ascending=True)
@@ -374,22 +340,17 @@ abs_rates_3ma_rank['Overall_Rank'] = (abs_rates_3ma_rank['Freq_Rank'] +
 
 abs_rates_sorted = abs_rates_3ma_rank.sort_values('Overall_Rank', ascending=True)
 
-print("="*70)
 print("OVERALL COMPOSITE RANKING (Equal Weight: Freq + Linewidth + Q-Factor)")
-print("="*70)
 for idx, (i, row) in enumerate(abs_rates_sorted.iterrows(), 1):
     print(f"Rank {idx}: {row['Material']}")
     print(f"  Frequency:  {row['Frequency_Rate_GHz/K']:.6f} GHz/K (rank {int(row['Freq_Rank'])})")
     print(f"  Linewidth:  {row['Linewidth_Rate_MHz/K']:.4f} MHz/K (rank {int(row['LW_Rank'])})")
     print(f"  Q-Factor:   {row['Q_Factor_Rate_Q/K']:.4f} Q/K (rank {int(row['QF_Rank'])})")
     print(f"  Overall Score: {row['Overall_Rank']:.2f}")
-    print()
 
 best_material = abs_rates_sorted.iloc[0]['Material']
 
-print("="*70)
 print("SUMMARY & RECOMMENDATIONS")
-print("="*70)
 print(f" BEST FOR LINEWIDTH (Spectral Purity):  {best_linewidth}")
 print(f"    {improvement:.1f}% better spectral stability")
 print(f"    Ideal for: Narrow-linewidth oscillators, spectroscopy")
@@ -402,7 +363,7 @@ print(f" BEST FOR FREQUENCY STABILITY:          {best_frequency}")
 print(f"    Most stable frequency vs temperature")
 print(f"    Ideal for: Precision frequency sources")
 print()
-print(f" OVERALL WINNER (Balanced):             {best_material}")
+print(f" OVERALL Best (Balanced):             {best_material}")
 print(f"    Best compromise across all metrics")
 print()
 
@@ -412,10 +373,7 @@ abs_rates_sorted.to_csv(output_file, index=False)
 print(f" Material ranking saved: {output_file}")
 
 # FIGURE 7: DEGRADATION RATE BAR CHART
-
-print("\n" + "="*70)
 print("GENERATING FIGURE 7: Degradation Rate Comparison")
-print("="*70)
 
 fig, axes = plt.subplots(1, 3, figsize=(24, 9))
 
@@ -483,9 +441,7 @@ print(f" Figure 7 saved: {output_fig}")
 
 # FIGURE 8: ABSOLUTE DEGRADATION RATE BAR CHART 
 
-print("\n" + "="*70)
 print("GENERATING FIGURE 8: Absolute Degradation Rate Comparison (FIXED)")
-print("="*70)
 
 fig, axes = plt.subplots(1, 3, figsize=(20, 8))
 
@@ -552,14 +508,9 @@ plt.tight_layout()
 output_fig = OUTPUT_DIR / 'figure_8_absolute_degradation_rates.png'
 plt.savefig(output_fig, dpi=300, bbox_inches='tight', facecolor='white')
 plt.close()
-print(f" Figure 8 saved (FIXED with 6 decimal places for frequency!)")
 
 
 # SUMMARY REPORT
-print("\n" + "="*70)
-print("GENERATING SUMMARY REPORT")
-print("="*70)
-
 summary_report = OUTPUT_DIR / 'SUMMARY_REPORT.txt'
 
 try:
@@ -664,9 +615,7 @@ except Exception as e:
         f.write("\nPlease check the CSV output files for results.\n")
 
 
-print("\n" + "="*70)
-print("ANALYSIS COMPLETE!")
-print("="*70)
+
 print(f"\n All results saved in: {OUTPUT_DIR}/")
 print("\nGenrated files:")
 print("   1. degradation_rates.csv")
@@ -677,9 +626,3 @@ print("   5. material_ranking.csv")
 print("   6. figure_7_degradation_rates.png")
 print("   7. figure_8_absolute_degradation_rates.png (FIXED - 6 decimals for frequency!)")
 print("   8. SUMMARY_REPORT.txt")
-
-print("\n KEY FIX:")
-print("    Frequency degradation now shows 6 decimal places (0.000xxx)")
-print("    This prevents rounding that made values look identical")
-
-print("\n" + "="*70 + "\n")
