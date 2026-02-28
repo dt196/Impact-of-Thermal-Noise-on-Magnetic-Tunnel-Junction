@@ -39,12 +39,7 @@ MATERIAL_MARKERS = {
 # FUNCTIONS
 
 def load_data():
-    """Load processed data files"""
-    
-    print(f"\n{'='*70}")
-    print(f"LOADING DATA")
-    print(f"{'='*70}")
-    
+
     try:
         df_raw = pd.read_csv(RAW_DATA_FILE)
         print(f" Loaded raw data: {len(df_raw)} rows")
@@ -73,9 +68,7 @@ def load_data():
 
 def create_figure_sw1_prob_vs_temp(df_stats):
     """Figure SW1: RIBBON PLOT with gradient fill """
-    
-    print(f"\nCreating Figure SW1: Ribbon Plot with Gradient Fill...")
-    
+        
     fig, ax = plt.subplots(figsize=(12, 7))
     
     # Clean white background
@@ -159,9 +152,7 @@ def create_figure_sw1_prob_vs_temp(df_stats):
 
 def create_figure_sw2_failure_comparison(df_raw):
     """Figure SW2: Failure rate comparison bar chart"""
-    
-    print(f"\nCreating Figure SW2: Failure Rate Comparison...")
-    
+        
     failure_rates = []
     for material in sorted(df_raw['Material'].unique()):
         mat_data = df_raw[df_raw['Material'] == material]
@@ -212,9 +203,7 @@ def create_figure_sw2_failure_comparison(df_raw):
 
 def create_figure_sw3_prob_vs_current(df_stats):
     """Figure SW3: Switching probability vs drive current - GROUPED BAR CHART"""
-    
-    print(f"\nCreating Figure SW3: Switching Probability vs Current (Grouped Bar Chart)...")
-    
+        
     materials = sorted(df_stats['Material'].unique())
     
     data_by_material = {}
@@ -307,10 +296,7 @@ def create_figure_sw4_heatmap(df_stats):
 
 
 def create_figure_sw5_theta_distribution(df_raw):
- 
-    
-    print(f"\nCreating Figure SW5: Theta Final Distribution ..")
-    
+     
     fig, axes = plt.subplots(1, 3, figsize=(18, 5))
     
     for idx, material in enumerate(sorted(df_raw['Material'].unique())):
@@ -367,8 +353,6 @@ def create_figure_sw5_theta_distribution(df_raw):
 
 def create_figure_sw6_failure_vs_temp(df_stats):
     """Figure SW6: STEP PLOT """
-    
-    print(f"\nCreating Figure SW6: Step Plot with Error Bars...")
     
     fig, ax = plt.subplots(figsize=(12, 7))
     
@@ -443,10 +427,7 @@ def create_figure_sw6_failure_vs_temp(df_stats):
 
 def perform_statistical_analysis(df_raw):
     
-    
-    print(f"\n{'='*70}")
     print(f"STATISTICAL ANALYSIS")
-    print(f"{'='*70}")
     
     materials = sorted(df_raw['Material'].unique())
     
@@ -489,16 +470,8 @@ def perform_statistical_analysis(df_raw):
 
 def main():
     """Main execution"""
-    
-    print("="*70)
+
     print("SWITCHING DATA VISUALIZATION")
-    print("="*70)
-    print("\nPERFECT IMPROVEMENTS:")
-    print("  - SW1: Ribbon plot with gradient fill ")
-    print("  - SW3: Grouped bar chart ")
-    print("  - SW5: Threshold JUST BELOW box ")
-    print("  - SW6: Step plot with error bars ")
-    print("  - SW2, SW4: Unchanged ")
     
     try:
         Path(FIGURE_DIR).mkdir(exist_ok=True, parents=True)
@@ -512,10 +485,8 @@ def main():
     if df_raw is None or df_stats is None:
         print("\n ERROR: Cannot proceed!")
         return
-    
-    print(f"\n{'='*70}")
+        
     print(f"CREATING FIGURES")
-    print(f"{'='*70}")
     
     create_figure_sw1_prob_vs_temp(df_stats)      # RIBBON PLOT 
     create_figure_sw2_failure_comparison(df_raw)
@@ -526,15 +497,13 @@ def main():
     
     perform_statistical_analysis(df_raw)
     
-    print(f"\n{'='*70}")
     print(f"ALL FIGURES CREATED")
-    print(f"{'='*70}")
     print(f"\nGenerated files in: {FIGURE_DIR}")
     print(f"  1. SW1 - Ribbon plot with gradient")
     print(f"  2. SW2 - Failure comparison")
     print(f"  3. SW3 - Grouped bar chart")
     print(f"  4. SW4 - Heatmap")
-    print(f"  5. SW5 - Perfect threshold position")
+    print(f"  5. SW5 - threshold position")
     print(f"  6. SW6 - Step plot with error bars")
     print(f"  7. Statistical analysis")
 
