@@ -4,9 +4,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import re
 
-print("\n" + "="*80)
 print("MTJ SPECTRUM ANALYSIS - FIXED THERMAL MODEL")
-print("="*80)
 
 # FILE PATHS - THERMAL MODEL
 
@@ -60,9 +58,6 @@ MATERIALS = {
 # FUNCTION: PARSE LOG FILE
 
 def parse_log_file(filename):
-    """
-    Extract measurement data from .log file
-    """
     
     print(f"\n    Parsing: {Path(filename).name}")
     
@@ -111,13 +106,11 @@ def parse_log_file(filename):
     
     return df
 
-# FUNCTION: CALCULATE REALISTIC FREQUENCY/LINEWIDTH/Q
+# FUNCTION: CALCULATE FREQUENCY/LINEWIDTH/Q
 
 def calculate_oscillator_properties(df, material):
    
-    
     mat_params = MATERIALS[material]
-    
     results = []
     
     for _, row in df.iterrows():
@@ -148,8 +141,6 @@ def calculate_oscillator_properties(df, material):
         # Base linewidth at 300K: 15-20 MHz (typical for STNOs)
         lw_base = 18.0  # MHz
         
-        # Temperature dependence: STRONG increase with temperature
-        # Thermal noise is the dominant linewidth broadening mechanism
         # Linewidth ∝ T (approximately)
         lw_temp = lw_base * (T / 300.0) ** 1.2
         
@@ -157,7 +148,6 @@ def calculate_oscillator_properties(df, material):
         
         lw_current = lw_temp * (3.0 / I) ** 0.3
         
-        # Material-dependent damping - FIXED THERMAL MODEL
         # Thermal noise ∝ √α
       
         damping_factor = {
@@ -186,8 +176,6 @@ def calculate_oscillator_properties(df, material):
 # FUNCTION: PLOT FREQUENCY VS TEMPERATURE
 def plot_frequency_vs_temperature(stats_df, output_dir):
     """Plot frequency vs temperature for all materials and currents"""
-    
-    print("\n    Creating frequency vs temperature plot...")
     
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
     axes = axes.flatten()
@@ -229,8 +217,6 @@ def plot_frequency_vs_temperature(stats_df, output_dir):
 def plot_linewidth_vs_temperature(stats_df, output_dir):
     """Plot linewidth vs temperature - shows thermal broadening"""
     
-    print("\n    Creating linewidth vs temperature plot...")
-    
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
     axes = axes.flatten()
     
@@ -270,8 +256,6 @@ def plot_linewidth_vs_temperature(stats_df, output_dir):
 # FUNCTION: PLOT Q-FACTOR VS TEMPERATURE
 def plot_qfactor_vs_temperature(stats_df, output_dir):
     """Plot Q-factor vs temperature - shows quality degradation"""
-    
-    print("\n    Creating Q-factor vs temperature plot...")
     
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
     axes = axes.flatten()
@@ -342,7 +326,6 @@ def main():
     print(f"   Materials: {combined_df['Material'].unique().tolist()}")
     
     # Calculate statistics (mean ± std for each T, I combination)
-    print("\n STEP 4: Calculating statistics...")
     stats_df = combined_df.groupby(['Material', 'Temperature_K', 'Current_mA']).agg({
         'Peak_Frequency_GHz': ['mean', 'std'],
         'Linewidth_MHz': ['mean', 'std'],
@@ -353,7 +336,6 @@ def main():
     print(f"   Statistical points: {len(stats_df)}")
     
     # Save data
-    print("\n STEP 5: Saving data files...")
     combined_df.to_csv(OUTPUT_DIR / 'all_data_FIXED_THERMAL.csv', index=False)
     print("       Saved: all_data_FIXED_THERMAL.csv")
     
@@ -372,11 +354,8 @@ def main():
     plot_qfactor_vs_temperature(stats_df, OUTPUT_DIR)
     
     # Summary
-    print("\n" + "="*80)
     print("ANALYSIS COMPLETE (FIXED THERMAL MODEL)")
-    print("="*80)
     
-    print(f"\n SUMMARY:")
     print(f"   Materials analyzed: {combined_df['Material'].nunique()}")
     for mat in combined_df['Material'].unique():
         count = len(combined_df[combined_df['Material'] == mat])
@@ -398,7 +377,7 @@ def main():
     print("   1. CoFeB/MgO: BEST linewidth stability (α=0.008)")
     print("   2. Co/Pt: MEDIUM linewidth stability (α=0.03)")
     print("   3. Co/Ni: WORST linewidth stability (α=0.05)")
-    print("   Demonstrating the fundamental damping-thermal noise trade-off!")
+    print("   Demonstrating the fundamental damping-thermal noise trade-off")
 
 if __name__ == "__main__":
     main()
